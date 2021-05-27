@@ -16,7 +16,10 @@
       >W</request-button
     >
     <request-button @on-click="exec" v-if="executable(resourcedef)"
-      >E</request-button
+      >Exe</request-button
+    >
+    <request-button @on-click="execWithParams" v-if="executable(resourcedef)"
+      >Exe<v-icon dense small right>mdi-cogs</v-icon></request-button
     >
     <resource-write-dialog
       v-model="showDialog"
@@ -149,6 +152,27 @@ export default {
         })
         .catch(() => {
           requestButton.resetState();
+        });
+    },
+    execWithParams(requestButton) {
+      this.$dialog
+        .prompt({
+          text: "Parameters for the execute request",
+          title: "Execute " + this.path,
+        })
+        .then((params) => {
+          if (params) {
+            this.axios
+              .post(this.requestPath(), params)
+              .then((response) => {
+                this.updateState(response.data, requestButton);
+              })
+              .catch(() => {
+                requestButton.resetState();
+              });
+          }else{
+            requestButton.resetState();
+          }
         });
     },
   },
